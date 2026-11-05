@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101313">
+  <meta name="description" content="Catalog de jocuri și prețuri, afișat simplu și ușor de răsfoit.">
+  <title>Pixel | Catalog de jocuri</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101313;
+      --surface: #171b1a;
+      --surface-2: #1d2220;
+      --line: #2b322f;
+      --muted: #9ba6a0;
+      --text: #f2f5f1;
+      --lime: #c6f36b;
+      --lime-ink: #17200c;
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(ellipse at 84% 0%, rgba(113, 135, 72, .13), transparent 34rem),
+        var(--bg);
+      color: var(--text);
+      font: 15px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    button, input, select { font: inherit; }
+    .wrap { width: min(1160px, calc(100% - 40px)); margin-inline: auto; }
+    header { border-bottom: 1px solid rgba(255,255,255,.07); }
+    .topbar { height: 74px; display: flex; align-items: center; justify-content: space-between; }
+    .brand { display: inline-flex; gap: 11px; align-items: center; color: var(--text); text-decoration: none; font-weight: 850; letter-spacing: .08em; }
+    .brand-mark { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 11px; background: var(--lime); color: var(--lime-ink); font-size: 17px; }
+    .brand span:last-child { font-size: 14px; }
+    .display-label { color: var(--muted); font-size: 12px; letter-spacing: .04em; }
+    main { padding: 46px 0 72px; }
+    .hero { display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: end; margin-bottom: 30px; }
+    .eyebrow { display: flex; align-items: center; gap: 8px; margin: 0 0 13px; color: var(--lime); text-transform: uppercase; font-size: 11px; font-weight: 800; letter-spacing: .16em; }
+    .eyebrow::before { content: ""; width: 20px; height: 1px; background: currentColor; }
+    h1 { max-width: 700px; margin: 0; font-size: clamp(36px, 5vw, 58px); line-height: 1.03; letter-spacing: -.055em; }
+    h1 em { color: var(--lime); font-style: normal; }
+    .intro { max-width: 590px; margin: 16px 0 0; color: var(--muted); font-size: 15px; }
+    .catalog-total { min-width: 130px; padding: 17px 19px; border: 1px solid var(--line); border-radius: 16px; background: rgba(23,27,26,.78); }
+    .catalog-total strong { display: block; font-size: 28px; line-height: 1.1; letter-spacing: -.04em; }
+    .catalog-total span { color: var(--muted); font-size: 12px; }
+    .toolbar { display: grid; grid-template-columns: minmax(220px, 1fr) 220px; gap: 12px; margin-bottom: 18px; }
+    .searchbox, .sortbox { position: relative; }
+    .searchbox svg { position: absolute; width: 18px; height: 18px; left: 16px; top: 50%; transform: translateY(-50%); color: #87928c; pointer-events: none; }
+    input, select { width: 100%; height: 50px; border: 1px solid var(--line); border-radius: 13px; outline: none; background: var(--surface); color: var(--text); }
+    input { padding: 0 16px 0 44px; }
+    input::placeholder { color: #78817c; }
+    select { appearance: none; padding: 0 42px 0 15px; cursor: pointer; }
+    .sortbox::after { content: "⌄"; position: absolute; right: 16px; top: 10px; color: var(--muted); font-size: 19px; pointer-events: none; }
+    input:focus, select:focus { border-color: #8fac4e; box-shadow: 0 0 0 3px rgba(198,243,107,.1); }
+    .filters { display: flex; gap: 8px; overflow-x: auto; padding: 0 0 17px; scrollbar-width: thin; scrollbar-color: #3e4742 transparent; }
+    .filter { flex: 0 0 auto; border: 1px solid var(--line); border-radius: 999px; padding: 8px 13px; background: transparent; color: #bec6c1; font-size: 12px; cursor: pointer; transition: .18s ease; }
+    .filter:hover { border-color: #65705e; color: var(--text); }
+    .filter.active { border-color: var(--lime); background: var(--lime); color: var(--lime-ink); font-weight: 750; }
+    .result-line { min-height: 26px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; color: var(--muted); font-size: 12px; }
+    .result-line strong { color: var(--text); font-weight: 650; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; }
+    .card { position: relative; min-height: 218px; display: flex; flex-direction: column; overflow: hidden; padding: 13px; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(155deg, rgba(255,255,255,.035), transparent 40%), var(--surface); transition: transform .18s ease, border-color .18s ease, background .18s ease; }
+    a.card { color: inherit; text-decoration: none; cursor: pointer; }
+    .card:hover { transform: translateY(-3px); border-color: #48554b; background-color: #1c221e; }
+    .art { position: relative; height: 91px; display: flex; align-items: flex-end; overflow: hidden; padding: 12px; border-radius: 12px; isolation: isolate; }
+    .art img { position: absolute; z-index: 0; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .art.has-image::before, .art.has-image::after, .art.has-image .art-mark, .art.has-image .art-icon { display: none; }
+    .art::before, .art::after { content: ""; position: absolute; z-index: -1; border-radius: 50%; filter: blur(1px); }
+    .art::before { width: 120px; height: 120px; right: -22px; top: -53px; background: rgba(255,255,255,.19); }
+    .art::after { width: 100px; height: 100px; left: 38%; bottom: -82px; background: rgba(0,0,0,.29); }
+    .art-mark { font-size: 27px; font-weight: 900; letter-spacing: -.08em; color: rgba(255,255,255,.9); text-shadow: 0 2px 14px rgba(0,0,0,.22); }
+    .art-icon { position: absolute; top: 11px; right: 12px; font-size: 17px; opacity: .86; }
+    .tone-action { background: linear-gradient(135deg, #7c3f35, #d39257); }
+    .tone-sim { background: linear-gradient(135deg, #355c53, #8ba96b); }
+    .tone-race { background: linear-gradient(135deg, #284b73, #49a6a0); }
+    .tone-horror { background: linear-gradient(135deg, #3b304c, #9c5870); }
+    .tone-rpg { background: linear-gradient(135deg, #5d4730, #c48c46); }
+    .tone-strategy { background: linear-gradient(135deg, #37434a, #7f9895); }
+    .tone-dlc { background: linear-gradient(135deg, #345644, #9aa94b); }
+    .tone-indie { background: linear-gradient(135deg, #45406c, #9181d0); }
+    .meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 11px 1px 5px; }
+    .tag { overflow: hidden; color: #aab4ae; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+    .price { flex: 0 0 auto; color: var(--lime); font-size: 12px; font-weight: 800; }
+    .card h2 { margin: 0 1px; font-size: 15px; line-height: 1.28; letter-spacing: -.018em; }
+    .note { margin: 7px 1px 0; color: #c7b89a; font-size: 10px; line-height: 1.35; }
+    .empty { grid-column: 1 / -1; padding: 52px 20px; border: 1px dashed var(--line); border-radius: var(--radius); color: var(--muted); text-align: center; }
+    .home-view[hidden], .detail-view[hidden] { display: none; }
+    .detail-view { max-width: 960px; margin: 0 auto; }
+    .back-button { display: inline-flex; align-items: center; gap: 9px; margin: 0 0 22px; border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; background: var(--surface); color: var(--text); cursor: pointer; }
+    .back-button:hover { border-color: #65705e; }
+    .detail-card { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(260px, .8fr); overflow: hidden; border: 1px solid var(--line); border-radius: 22px; background: var(--surface); }
+    .detail-art { position: relative; min-height: 330px; display: grid; place-items: center; overflow: hidden; }
+    .detail-art .art-mark { position: relative; z-index: 1; font-size: clamp(54px, 9vw, 100px); }
+    .detail-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .detail-copy { display: flex; flex-direction: column; align-items: flex-start; padding: clamp(22px, 4vw, 38px); }
+    .detail-kicker { margin: 0 0 10px; color: var(--lime); font-size: 11px; font-weight: 750; letter-spacing: .13em; text-transform: uppercase; }
+    .detail-copy h1 { font-size: clamp(28px, 4vw, 42px); overflow-wrap: anywhere; }
+    .detail-price { margin: 14px 0 18px; color: var(--lime); font-size: 20px; font-weight: 850; }
+    .detail-description { margin: 0; color: #c0c9c3; font-size: 15px; line-height: 1.75; }
+    .detail-note { margin: 12px 0 0; color: #d7c49b; font-size: 13px; }
+    .steam-link { display: inline-flex; margin-top: auto; padding: 11px 15px; border-radius: 11px; background: var(--lime); color: var(--lime-ink); text-decoration: none; font-size: 13px; font-weight: 800; }
+    .steam-link:hover { filter: brightness(1.06); }
+    .image-credit { margin: 12px 2px 0; color: #78827c; font-size: 11px; }
+    footer { border-top: 1px solid rgba(255,255,255,.07); padding: 19px 0 27px; color: #7f8983; font-size: 11px; }
+    footer .wrap { display: flex; justify-content: space-between; gap: 16px; }
+    @media (max-width: 960px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 680px) {
+      .wrap { width: min(100% - 28px, 560px); }
+      .topbar { height: 64px; }
+      .display-label { font-size: 10px; }
+      main { padding: 34px 0 52px; }
+      .hero { grid-template-columns: 1fr; gap: 18px; }
+      .catalog-total { display: flex; align-items: baseline; gap: 9px; width: fit-content; min-width: 0; padding: 10px 13px; }
+      .catalog-total strong { font-size: 21px; }
+      .toolbar { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+      .card { min-height: 204px; padding: 10px; border-radius: 15px; }
+      .art { height: 78px; }
+      .card h2 { font-size: 13px; }
+      .detail-card { grid-template-columns: 1fr; }
+      .detail-art { min-height: 220px; }
+      .detail-copy { min-height: 285px; }
+      footer .wrap { display: block; }
+      footer .wrap span { display: block; margin-top: 4px; }
+    }
+    @media (max-width: 360px) { .grid { grid-template-columns: 1fr; } .card { min-height: 215px; } .art { height: 94px; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap topbar">
+      <a class="brand" href="#top" aria-label="Pixel, catalog de jocuri">
+        <span class="brand-mark">P</span><span>PIXEL / JOCURI</span>
+      </a>
+      <span class="display-label">Catalog informativ · doar afișare</span>
+    </div>
+  </header>
+
+  <main class="wrap" id="top">
+    <div class="home-view" id="home-view">
+    <section class="hero" aria-labelledby="title">
+      <div>
+        <p class="eyebrow">Catalog de jocuri</p>
+        <h1 id="title">Alege următorul<br><em>univers de explorat.</em></h1>
+        <p class="intro">Răsfoiește lista, caută un titlu sau filtrează după categorie. Prețurile sunt afișate în lei.</p>
+      </div>
+      <div class="catalog-total"><strong id="total">0</strong><span>titluri în catalog</span></div>
+    </section>
+
+    <section aria-label="Caută și filtrează jocuri">
+      <div class="toolbar">
+        <label class="searchbox">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <input id="search" type="search" placeholder="Caută un joc..." aria-label="Caută un joc">
+        </label>
+        <label class="sortbox">
+          <select id="sort" aria-label="Sortează jocurile">
+            <option value="default">Ordinea inițială</option>
+            <option value="low">Preț: crescător</option>
+            <option value="high">Preț: descrescător</option>
+            <option value="az">Nume: A–Z</option>
+          </select>
+        </label>
+      </div>
+      <nav class="filters" id="filters" aria-label="Categorii"></nav>
+      <div class="result-line"><span id="result-count" aria-live="polite"></span><span>Prețurile sunt în <strong>lei</strong></span></div>
+      <div class="grid" id="games"></div>
+    </section>
+    </div>
+    <section class="detail-view" id="detail-view" hidden aria-live="polite"></section>
+  </main>
+
+  <footer><div class="wrap"><span>PIXEL / JOCURI</span><span>Catalog informativ. Nu se pot plasa comenzi pe acest site.</span></div></footer>
+
+  <script>
+    const games = [{"name":"GTA 5","price":70,"category":"Acțiune & aventură","tone":"action","steamId":3240220,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3240220/header.jpg?t=1781187782","storeUrl":"https://store.steampowered.com/app/3240220/"},{"name":"ETS2","price":30,"category":"Simulare","tone":"sim","steamId":227300,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/227300/9a81dc3126c56637297b654f9dcac057cfd79b77/header.jpg?t=1793285269","storeUrl":"https://store.steampowered.com/app/227300/"},{"name":"The Forest","price":80,"category":"Horror & supraviețuire","tone":"horror","steamId":242760,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/242760/header.jpg?t=1699381053","storeUrl":"https://store.steampowered.com/app/242760/"},{"name":"FH6","price":150,"category":"Curse","tone":"race","steamId":2483190,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2483190/c53fe3362cc3267a5d34aca3e796b90963e0e23f/header_alt_assets_6.jpg?t=1793664659","storeUrl":"https://store.steampowered.com/app/2483190/"},{"name":"FH5","price":70,"category":"Curse","tone":"race","steamId":1551360,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1551360/header.jpg?t=1788546569","storeUrl":"https://store.steampowered.com/app/1551360/"},{"name":"FH4","price":40,"category":"Curse","tone":"race","steamId":1293830,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1293830/header.jpg?t=1734336342","storeUrl":"https://store.steampowered.com/app/1293830/"},{"name":"Sons of the Forest","price":45,"category":"Horror & supraviețuire","tone":"horror","steamId":1326470,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1326470/header.jpg?t=1708624856","storeUrl":"https://store.steampowered.com/app/1326470/"},{"name":"Moon Swepers","price":45,"category":"Indie","tone":"indie","steamId":5335510,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/5335510/41e1e802dfc069cc245b91043e451a2f9ffa80e3/header.jpg?t=1792950881","storeUrl":"https://store.steampowered.com/app/5335510/"},{"name":"Raft","price":50,"category":"Horror & supraviețuire","tone":"sim","steamId":648800,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/648800/header.jpg?t=1727184011","storeUrl":"https://store.steampowered.com/app/648800/"},{"name":"TT Isle of Man","price":55,"category":"Curse","tone":"race","steamId":1924170,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1924170/ss_8b41e9375bc5cec458d8f2162416621fc0dbe2c9.1920x1080.jpg?t=1764149285","storeUrl":"https://store.steampowered.com/app/1924170/"},{"name":"Project Zomboid","price":45,"category":"Horror & supraviețuire","tone":"horror","steamId":108600,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/108600/header.jpg?t=1793224893","storeUrl":"https://store.steampowered.com/app/108600/"},{"name":"BeamNG","price":60,"category":"Simulare","tone":"sim","steamId":284160,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/284160/17f8af1312bc48e6cd90e5fb639d4981682af260/header.jpg?t=1792417797","storeUrl":"https://store.steampowered.com/app/284160/"},{"name":"FNAF Security Breach","price":50,"category":"Horror & supraviețuire","tone":"horror","steamId":747660,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/747660/header.jpg?t=1686587905","storeUrl":"https://store.steampowered.com/app/747660/"},{"name":"GTA 6 (Xbox sau PS5)","price":350,"category":"Acțiune & aventură","tone":"action","image":"https://media-rockstargames-com.akamaized.net/tina-uploads/posts/39ak8a12395591/cfc61a2d2e7b8c700e46582dc865e180b6c431d9.jpg"},{"name":"FC 27","price":270,"category":"Sport","tone":"race","steamId":4080220,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4080220/ff6a3779f1ca83aae8ad3878454f6c11008ea24d/header.jpg?t=1793610006","storeUrl":"https://store.steampowered.com/app/4080220/"},{"name":"FC 26","price":100,"category":"Sport","tone":"race","steamId":3405690,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3405690/2d96aa1b06e453cd62dae9029d412f19e61932c3/header.jpg?t=1789751159","storeUrl":"https://store.steampowered.com/app/3405690/"},{"name":"SnowRunner","price":90,"category":"Simulare","tone":"sim","steamId":1465360,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1465360/header.jpg?t=1792504894","storeUrl":"https://store.steampowered.com/app/1465360/"},{"name":"Scam with your friends","price":15,"category":"Indie","tone":"indie","note":"Cheie aleatorie; este posibil să o primești sau nu.","steamId":4954910,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4954910/128effac3212fc1b92b4f6cd8891995df0d4b199/header.jpg?t=1792556475","storeUrl":"https://store.steampowered.com/app/4954910/"},{"name":"RDR2","price":70,"category":"Acțiune & aventură","tone":"action","steamId":1174180,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/header.jpg?t=1759502961","storeUrl":"https://store.steampowered.com/app/1174180/"},{"name":"Fallout: Game of the Year","price":100,"category":"RPG","tone":"rpg","steamId":377160,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/377160/header.jpg?t=1786648137","storeUrl":"https://store.steampowered.com/app/377160/"},{"name":"Mecha Chameleon","price":23,"category":"Indie","tone":"indie","steamId":4704690,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4704690/6c0a47cc2fba1b160901d1553637a764198bdc98/ss_6c0a47cc2fba1b160901d1553637a764198bdc98.1920x1080.jpg?t=1789464996","storeUrl":"https://store.steampowered.com/app/4704690/"},{"name":"Planet Zoo","price":200,"category":"Simulare","tone":"sim","steamId":703080,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/703080/header.jpg?t=1765896213","storeUrl":"https://store.steampowered.com/app/703080/"},{"name":"Over the Hill","price":90,"category":"Curse","tone":"race","steamId":2929250,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2929250/header.jpg?t=1793102846","storeUrl":"https://store.steampowered.com/app/2929250/"},{"name":"Minecraft","price":125,"category":"Simulare","tone":"sim","image":"https://www.minecraft.net/content/dam/minecraftnet/games/minecraft/key-art/Global-Header_Image-Tile_MC-Java-Bedrock_570x321.jpg"},{"name":"House Flipper","price":100,"category":"Simulare","tone":"sim","steamId":613100,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/613100/6cee40fe293f0bab47534e78bcda64487902efc1/header.jpg?t=1790844381","storeUrl":"https://store.steampowered.com/app/613100/"},{"name":"My Summer Car","price":35,"category":"Simulare","tone":"sim","steamId":516750,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/516750/header.jpg?t=1736372299","storeUrl":"https://store.steampowered.com/app/516750/"},{"name":"FS25","price":140,"category":"Simulare","tone":"sim","steamId":2300320,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2300320/c2a205133d23cd24faf3c152d972a1d0177661b8/header.jpg?t=1793106374","storeUrl":"https://store.steampowered.com/app/2300320/"},{"name":"Schedule I","price":50,"category":"Simulare","tone":"sim","steamId":3164500,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3164500/header.jpg?t=1785744977","storeUrl":"https://store.steampowered.com/app/3164500/"},{"name":"RV There Yet?","price":20,"category":"Simulare","tone":"sim","steamId":3949040,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3949040/cae24b4ed7f4531be51f0d63f785b7d253f92dc3/header.jpg?t=1789134289","storeUrl":"https://store.steampowered.com/app/3949040/"},{"name":"Phasmophobia","price":50,"category":"Horror & supraviețuire","tone":"horror","steamId":739630,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/739630/c227a2855aba60f3657bc0c3a46515b8c41fb2b6/header.jpg?t=1793615120","storeUrl":"https://store.steampowered.com/app/739630/"},{"name":"Left 4 Dead","price":30,"category":"Horror & supraviețuire","tone":"horror","steamId":500,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/500/header.jpg?t=1745368560","storeUrl":"https://store.steampowered.com/app/500/"},{"name":"Tunic","price":50,"category":"Acțiune & aventură","tone":"indie","steamId":553420,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/553420/header.jpg?t=1783359656","storeUrl":"https://store.steampowered.com/app/553420/"},{"name":"ETS2: Road to the Black Sea","price":70,"category":"DLC Euro Truck Simulator 2","tone":"dlc","steamId":1056760,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1056760/f900c995f29d2d645e500521656b6139d66ba345/header.jpg?t=1753961034","storeUrl":"https://store.steampowered.com/app/1056760/"},{"name":"Aska","price":30,"category":"Simulare","tone":"sim","steamId":1898300,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1898300/23528b2b61353979035f8efceef82ce3aa6bb311/header.jpg?t=1793112853","storeUrl":"https://store.steampowered.com/app/1898300/"},{"name":"Phantom Blade Zero","price":285,"category":"Acțiune & aventură","tone":"action","steamId":4115450,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4115450/7f882f889630270d3d3fb93825ac6f55b55e7a6c/header.jpg?t=1793261976","storeUrl":"https://store.steampowered.com/app/4115450/"},{"name":"Assassin's Creed Valhalla","price":200,"category":"Acțiune & aventură","tone":"action","steamId":2208920,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2208920/6946e6ea6cfe63a38865de5858a15170c8b80258/header_alt_assets_0.jpg?t=1793391396","storeUrl":"https://store.steampowered.com/app/2208920/"},{"name":"Call of Duty: Modern Warfare 4","price":320,"category":"Acțiune & aventură","tone":"action","steamId":4435490,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4435490/0c492be3204835d71e8b454b6eb1817f8ff68c0d/header.jpg?t=1793833638","storeUrl":"https://store.steampowered.com/app/4435490/"},{"name":"Half-Life 2","price":40,"category":"Acțiune & aventură","tone":"action","steamId":220,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/220/header.jpg?t=1745368545","storeUrl":"https://store.steampowered.com/app/220/"},{"name":"Sackboy: A Big Adventure","price":200,"category":"Acțiune & aventură","tone":"indie","steamId":1599660,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1599660/header.jpg?t=1750957508","storeUrl":"https://store.steampowered.com/app/1599660/"},{"name":"Cheap Car Repair","price":110,"category":"Simulare","tone":"sim","steamId":2904040,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2904040/dbcdc51dbc0aa6ef105eb6fef5f1f7f63aa17fa1/header.jpg?t=1792488035","storeUrl":"https://store.steampowered.com/app/2904040/"},{"name":"Car Mechanic Simulator (2021)","price":70,"category":"Simulare","tone":"sim","steamId":1190000,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1190000/header.jpg?t=1793732210","storeUrl":"https://store.steampowered.com/app/1190000/"},{"name":"Borderlands 4","price":235,"category":"RPG","tone":"rpg","steamId":1285190,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1285190/986a88d1b0e1420b00183def2a7034508353afa3/header.jpg?t=1793396913","storeUrl":"https://store.steampowered.com/app/1285190/"},{"name":"Cyberpunk 2077","price":150,"category":"RPG","tone":"rpg","steamId":1091500,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/48a93d6445a67520ea49833c93dae8f2e68fc540/header_alt_assets_9.jpg?t=1792682505","storeUrl":"https://store.steampowered.com/app/1091500/"},{"name":"Control Resonant","price":240,"category":"Acțiune & aventură","tone":"action","steamId":3669870,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3669870/1e0c76e4253d347bb1304c3f213570251d924edf/header.jpg?t=1793357289","storeUrl":"https://store.steampowered.com/app/3669870/"},{"name":"Crimson Desert: Enchanted","price":250,"category":"RPG","tone":"rpg","steamId":3321460,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3321460/236f3814be7a97d86831800691b6096d449222a8/header.jpg?t=1792637341","storeUrl":"https://store.steampowered.com/app/3321460/"},{"name":"Dead by Daylight","price":50,"category":"Horror & supraviețuire","tone":"horror","steamId":381210,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/381210/header.jpg?t=1793724618","storeUrl":"https://store.steampowered.com/app/381210/"},{"name":"Bodycam","price":80,"category":"Acțiune & aventură","tone":"action","steamId":2406770,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2406770/36264077393918f3945447eed3d6374cdf21e69a/header.jpg?t=1791014741","storeUrl":"https://store.steampowered.com/app/2406770/"},{"name":"Loftia","price":110,"category":"Simulare","tone":"sim","steamId":2320980,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2320980/header.jpg?t=1793732506","storeUrl":"https://store.steampowered.com/app/2320980/"},{"name":"Rust","price":100,"category":"Horror & supraviețuire","tone":"horror","steamId":252490,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/252490/header.jpg?t=1781536981","storeUrl":"https://store.steampowered.com/app/252490/"},{"name":"Frostpunk 2: Deluxe Edition","price":200,"category":"Strategie","tone":"strategy","steamId":1601580,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1601580/c918af93dd09dc24a9b8fd8cddf709b4395bd9a5/header_alt_assets_7.jpg?t=1793719191","storeUrl":"https://store.steampowered.com/app/1601580/"},{"name":"Mortal Kombat","price":130,"category":"Acțiune & aventură","tone":"action","steamId":1971870,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1971870/ss_29b0a9e87d5a4981d7403994b661c43117a87d84.1920x1080.jpg?t=1778795130","storeUrl":"https://store.steampowered.com/app/1971870/"},{"name":"Mortal Kombat 11","price":130,"category":"Acțiune & aventură","tone":"action","steamId":976310,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/976310/header.jpg?t=1780429525","storeUrl":"https://store.steampowered.com/app/976310/"},{"name":"Mortal Kombat X","price":60,"category":"Acțiune & aventură","tone":"action","steamId":307780,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/307780/header.jpg?t=1761846088","storeUrl":"https://store.steampowered.com/app/307780/"},{"name":"ETS2: West Balkans","price":75,"category":"DLC Euro Truck Simulator 2","tone":"dlc","steamId":2004210,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2004210/1e291946eb2ca0b65895d1d6479aa657d6d68f71/header.jpg?t=1781789472","storeUrl":"https://store.steampowered.com/app/2004210/"},{"name":"ETS2: Scandinavia","price":75,"category":"DLC Euro Truck Simulator 2","tone":"dlc","steamId":304212,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/304212/c8a19f31c2eef65f1b78b1210c04073867220a02/header.jpg?t=1785484804","storeUrl":"https://store.steampowered.com/app/304212/"},{"name":"ETS2: Iberia","price":75,"category":"DLC Euro Truck Simulator 2","tone":"dlc","steamId":1209460,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1209460/826486bdcbe5668b0aa70bca2b7a6ee5a59bba85/header.jpg?t=1753960294","storeUrl":"https://store.steampowered.com/app/1209460/"},{"name":"ETS2: Going East!","price":45,"category":"DLC Euro Truck Simulator 2","tone":"dlc","steamId":227310,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/227310/ff67a1defadae8f710e3439d90a16dc5f8ae42f5/header.jpg?t=1754032656","storeUrl":"https://store.steampowered.com/app/227310/"},{"name":"ETS2: Greece","price":75,"category":"DLC Euro Truck Simulator 2","tone":"dlc","steamId":2604420,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2604420/cebe22adfddfdec1d60f73217a85ed2e68df1563/header.jpg?t=1753957826","storeUrl":"https://store.steampowered.com/app/2604420/"},{"name":"ETS2: Beyond the Baltic Sea","price":75,"category":"DLC Euro Truck Simulator 2","tone":"dlc","steamId":925580,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/925580/735f6c4b4f67b9709b3c2b19bbf0c5ff6209885f/header.jpg?t=1753961285","storeUrl":"https://store.steampowered.com/app/925580/"},{"name":"ETS2: Vive la France!","price":75,"category":"DLC Euro Truck Simulator 2","tone":"dlc","steamId":531130,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/531130/12e1527163a739ab37f5a910045f9a74246b1d7e/header.jpg?t=1753962461","storeUrl":"https://store.steampowered.com/app/531130/"},{"name":"ETS2: Italy","price":75,"category":"DLC Euro Truck Simulator 2","tone":"dlc","steamId":558244,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/558244/81e219d061a698d9195fd54f12490fd39d667c52/header.jpg?t=1753961929","storeUrl":"https://store.steampowered.com/app/558244/"},{"name":"Slime Rancher 1","price":30,"category":"Simulare","tone":"sim","steamId":433340,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/433340/header.jpg","storeUrl":"https://store.steampowered.com/app/433340/"},{"name":"Slime Rancher 2","price":75,"category":"Simulare","tone":"sim","steamId":1657630,"image":"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1657630/header.jpg","storeUrl":"https://store.steampowered.com/app/1657630/"}];
+
+    const icons = {"Acțiune & aventură":"⚔","Simulare":"⌂","Curse":"↗","Horror & supraviețuire":"☾","RPG":"✦","Strategie":"▦","DLC Euro Truck Simulator 2":"＋","Indie":"✳","Sport":"◎"};
+    const descriptions = {
+      "GTA 5":"Explorează Los Santos într-o aventură open-world cu misiuni, personaje și acțiune criminală.",
+      "ETS2":"Condu camionul prin Europa, livrează marfă și dezvoltă-ți propria companie de transport.",
+      "The Forest":"Supraviețuiește într-o pădure misterioasă: adună resurse, construiește adăpost și ferește-te de mutanți.",
+      "FH6":"Descoperă peisajele Japoniei și concurează într-o lume deschisă cu sute de mașini.",
+      "FH5":"Explorează Mexicul într-o lume deschisă plină de curse și mașini emblematice.",
+      "FH4":"Condu prin Marea Britanie, unde anotimpurile schimbă peisajul și felul în care se desfășoară cursele.",
+      "Sons of the Forest":"Explorează o insulă ostilă, construiește și luptă pentru supraviețuire singur sau cu prietenii.",
+      "Moon Swepers":"Curăță suprafața Lunii, îmbunătățește uneltele și lucrează în echipă cu până la 16 jucători.",
+      "Raft":"Supraviețuiește pe ocean, strânge resturi și transformă o plută într-o casă plutitoare.",
+      "TT Isle of Man":"Înfruntă curse de motociclete pe traseul montan dificil al competiției Isle of Man TT.",
+      "Project Zomboid":"Un joc de supraviețuire cu zombi în care cauți provizii, construiești și încerci să reziști.",
+      "BeamNG":"Simulează condusul cu fizică realistă a vehiculelor și avarii detaliate la impact.",
+      "FNAF Security Breach":"Ajută-l pe Gregory să supraviețuiască o noapte în centrul comercial Freddy Fazbear's Mega Pizzaplex.",
+      "GTA 6 (Xbox sau PS5)":"Aventură de acțiune open-world din seria Grand Theft Auto, pentru Xbox sau PS5.",
+      "FC 27":"Fotbal virtual cu echipe, moduri de joc și meciuri competitive din EA SPORTS FC.",
+      "FC 26":"Joacă fotbal în moduri de carieră și competiție, cu echipe și vedete internaționale.",
+      "SnowRunner":"Condu vehicule de teren prin medii dificile și du la capăt misiuni solo sau în cooperativ.",
+      "Scam with your friends":"Gestionează un call center de escrocherii alături de prieteni și păcălește apelanți controlați de AI.",
+      "RDR2":"Trăiește povestea haiducului Arthur Morgan într-o aventură western amplă, într-o lume deschisă.",
+      "Fallout: Game of the Year":"Explorează un Boston post-apocaliptic, îndeplinește misiuni și construiește așezări în Fallout 4.",
+      "Mecha Chameleon":"Un joc cu tematică mecha și un cameleon mecanic; verifică pagina jocului pentru detalii suplimentare.",
+      "Planet Zoo":"Construiește și administrează o grădină zoologică, amenajând habitate pentru animale realiste.",
+      "Over the Hill":"Explorează trasee pitorești la volanul unor vehicule 4x4 din anii ’60–’80.",
+      "Minecraft":"Explorează, construiește și supraviețuiește într-o lume deschisă din blocuri, singur sau cu prietenii.",
+      "House Flipper":"Cumpără clădiri degradate, renovează-le și vinde-le pentru profit.",
+      "My Summer Car":"Asamblează și repară o mașină din sute de piese într-un simulator de viață și supraviețuire.",
+      "FS25":"Condu o fermă, cultivă terenuri și crește animale, singur sau în multiplayer.",
+      "Schedule I":"Construiește un imperiu criminal într-un simulator de management desfășurat în orașul Hyland Point.",
+      "RV There Yet?":"Pornește într-o aventură cooperativă la volanul unei rulote și încearcă să ajungi acasă.",
+      "Phasmophobia":"Formați o echipă de vânători de fantome și strângeți dovezi într-un horror cooperativ online.",
+      "Left 4 Dead":"Luptă alături de până la trei coechipieri împotriva hoardelor de zombi.",
+      "Tunic":"Pornește într-o aventură izometrică în rolul unei vulpi mici, într-un ținut plin de secrete.",
+      "ETS2: Road to the Black Sea":"Livrează marfă prin România, Bulgaria și Turcia și explorează orașe și drumuri noi.",
+      "Aska":"Construiește și conduce un trib viking, organizând sătenii pentru muncă, vânătoare și lupte.",
+      "Phantom Blade Zero":"Un joc de acțiune wuxia în care războinicul Soul are doar 66 de zile să-și împlinească misiunea.",
+      "Assassin's Creed Valhalla":"Joacă în rolul unui războinic viking, explorează Anglia și extinde-ți așezarea prin raiduri.",
+      "Call of Duty: Modern Warfare 4":"Intră într-un conflict militar fictiv din Peninsula Coreeană, în noul shooter Call of Duty.",
+      "Half-Life 2":"Ajută rezistența umană să lupte împotriva ocupației extraterestre, în rolul lui Gordon Freeman.",
+      "Sackboy: A Big Adventure":"Aventurează-te prin niveluri 3D de platformă, singur sau în multiplayer alături de prieteni.",
+      "Cheap Car Repair":"Administrează un atelier auto în Polonia anilor ’90 și repară mașini cu buget redus.",
+      "Car Mechanic Simulator (2021)":"Repară, restaurează și modifică mașini, apoi dezvoltă-ți propriul service auto.",
+      "Borderlands 4":"Un shooter cu pradă și cooperativă, plin de arme, inamici și vânători de comori.",
+      "Cyberpunk 2077":"Explorează Night City într-un RPG open-world plasat într-un viitor obsedat de tehnologie și putere.",
+      "Control Resonant":"Explorează un Manhattan distorsionat și luptă împotriva unei amenințări paranaturale în rolul lui Dylan Faden.",
+      "Crimson Desert: Enchanted":"Explorează continentul Pywel și ajută-l pe Kliff să-și refacă facțiunea într-o aventură open-world.",
+      "Dead by Daylight":"Patru supraviețuitori încearcă să scape de un ucigaș într-un horror multiplayer asimetric.",
+      "Bodycam":"Un FPS tactic multiplayer cu perspectivă de cameră corporală și lupte în spații apropiate.",
+      "Loftia":"Construiește o viață liniștită într-o lume multiplayer axată pe agricultură, meșteșug și explorare.",
+      "Rust":"Adună resurse, construiește un adăpost și luptă să supraviețuiești pe o insulă ostilă.",
+      "Frostpunk 2: Deluxe Edition":"Dezvoltă un oraș după o furtună apocaliptică și condu facțiunile unei societăți aflate sub presiune.",
+      "Mortal Kombat":"Înfruntă adversari în dueluri de lupte cu personaje emblematice și mișcări speciale.",
+      "Mortal Kombat 11":"Luptă cu personaje clasice și noi în următoarea etapă a seriei Mortal Kombat.",
+      "Mortal Kombat X":"Un joc de lupte cinematic, cu personaje emblematice și mecanici noi de combatere.",
+      "ETS2: West Balkans":"Extinde harta ETS2 prin Albania, Croația, Serbia și alte țări din Balcanii de Vest.",
+      "ETS2: Scandinavia":"Explorează drumurile, orașele și industriile din Suedia, Norvegia și Danemarca.",
+      "ETS2: Iberia":"Livrează marfă prin Spania și Portugalia, de la zone aride la păduri verzi.",
+      "ETS2: Going East!":"Extinde harta ETS2 cu destinații și orașe din Polonia, Cehia, Slovacia și Ungaria.",
+      "ETS2: Greece":"Condu prin Grecia continentală și insule, printre sate pitorești și drumuri șerpuitoare.",
+      "ETS2: Beyond the Baltic Sea":"Explorează Lituania, Letonia, Estonia, sudul Finlandei și zone din vestul Rusiei.",
+      "ETS2: Vive la France!":"Descoperă orașele, satele și peisajele Franței într-o extindere a hărții ETS2.",
+      "ETS2: Italy":"Condu prin Italia și descoperă arhitectura, industria și peisajele sale variate.",
+      "Slime Rancher 1":"Explorează Far, Far Range, crește slime-uri și administrează ferma lui Beatrix LeBeau.",
+      "Slime Rancher 2":"Explorează Rainbow Island, adună slime-uri și construiește o fermă în continuarea aventurii lui Beatrix."
+    };
+    const categories = ["Toate", ...new Set(games.map(game => game.category))];
+    let activeCategory = "Toate";
+    const search = document.querySelector("#search");
+    const sort = document.querySelector("#sort");
+    const grid = document.querySelector("#games");
+    const filterBar = document.querySelector("#filters");
+    const homeView = document.querySelector("#home-view");
+    const detailView = document.querySelector("#detail-view");
+    const normalize = value => value.toLocaleLowerCase("ro").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const escapeHTML = value => String(value).replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[char]));
+    const markFor = name => name.split(/\s+/).slice(0, 2).map(word => word[0]).join("").replace(/[^\p{L}\p{N}]/gu, "").slice(0, 3).toUpperCase();
+
+    document.querySelector("#total").textContent = games.length;
+    categories.forEach(category => {
+      const button = document.createElement("button");
+      button.className = "filter" + (category === activeCategory ? " active" : "");
+      button.type = "button";
+      button.textContent = category;
+      button.setAttribute("aria-pressed", String(category === activeCategory));
+      button.addEventListener("click", () => {
+        activeCategory = category;
+        filterBar.querySelectorAll("button").forEach(item => {
+          const selected = item.textContent === category;
+          item.classList.toggle("active", selected);
+          item.setAttribute("aria-pressed", String(selected));
+        });
+        render();
+      });
+      filterBar.append(button);
+    });
+
+    function render() {
+      const query = normalize(search.value.trim());
+      let visible = games.filter(game =>
+        (activeCategory === "Toate" || game.category === activeCategory) &&
+        normalize(`${game.name} ${game.category}`).includes(query)
+      );
+      if (sort.value === "low") visible.sort((a, b) => a.price - b.price);
+      if (sort.value === "high") visible.sort((a, b) => b.price - a.price);
+      if (sort.value === "az") visible.sort((a, b) => a.name.localeCompare(b.name, "ro"));
+      document.querySelector("#result-count").textContent = `${visible.length} ${visible.length === 1 ? "rezultat" : "rezultate"}`;
+      if (!visible.length) {
+        grid.innerHTML = '<div class="empty">Nu am găsit jocuri pentru căutarea ta. Încearcă alt titlu.</div>';
+        return;
+      }
+      grid.innerHTML = visible.map(game => {
+        const image = game.image ? `<img src="${escapeHTML(game.image)}" alt="Imagine Steam pentru ${escapeHTML(game.name)}" loading="lazy" onerror="this.remove();this.parentElement.classList.remove('has-image')">` : "";
+        return `<a class="card" href="#game=${encodeURIComponent(game.name)}" aria-label="Detalii pentru ${escapeHTML(game.name)}, ${game.price} lei">
+          <div class="art tone-${game.tone}${game.image ? " has-image" : ""}" aria-hidden="true">${image}<span class="art-mark">${markFor(game.name)}</span><span class="art-icon">${icons[game.category] || "✦"}</span></div>
+          <div class="meta"><span class="tag">${escapeHTML(game.category)}</span><span class="price">${game.price} lei</span></div>
+          <h2>${escapeHTML(game.name)}</h2>
+          ${game.note ? `<p class="note">${escapeHTML(game.note)}</p>` : ""}
+        </a>`;
+      }).join("");
+    }
+
+    function showHome() {
+      homeView.hidden = false;
+      detailView.hidden = true;
+      document.title = "Pixel | Catalog de jocuri";
+    }
+
+    function showGame(game) {
+      homeView.hidden = true;
+      detailView.hidden = false;
+      document.title = `${game.name} | Pixel`;
+      const image = game.image ? `<img src="${escapeHTML(game.image)}" alt="Imagine Steam pentru ${escapeHTML(game.name)}" onerror="this.remove();this.parentElement.classList.remove('has-image')">` : "";
+      const steamLink = game.storeUrl ? `<a class="steam-link" href="${escapeHTML(game.storeUrl)}" target="_blank" rel="noopener noreferrer">Vezi pagina pe Steam ↗</a>` : "";
+      detailView.innerHTML = `<button class="back-button" id="back-to-home" type="button">← Înapoi la catalog</button>
+        <div class="detail-card">
+          <div class="detail-art tone-${game.tone}${game.image ? " has-image" : ""}">${image}<span class="art-mark">${markFor(game.name)}</span></div>
+          <div class="detail-copy">
+            <p class="detail-kicker">${escapeHTML(game.category)}</p>
+            <h1>${escapeHTML(game.name)}</h1>
+            <p class="detail-price">${game.price} lei</p>
+            <p class="detail-description">${escapeHTML(descriptions[game.name] || "Descrierea nu este disponibilă momentan.")}</p>
+            ${game.note ? `<p class="detail-note">${escapeHTML(game.note)}</p>` : ""}
+            ${steamLink}
+          </div>
+        </div>
+        ${game.image ? '<p class="image-credit">Imagine preluată de pe pagina jocului din Steam Store.</p>' : ""}`;
+      detailView.querySelector("#back-to-home").addEventListener("click", () => {
+        history.replaceState(null, "", `${location.pathname}${location.search}#top`);
+        showHome();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function routeFromHash() {
+      const match = location.hash.match(/^#game=(.+)$/);
+      if (!match) { showHome(); return; }
+      let requestedName = "";
+      try { requestedName = decodeURIComponent(match[1]); } catch { showHome(); return; }
+      const game = games.find(item => item.name === requestedName);
+      if (game) showGame(game); else showHome();
+    }
+
+    search.addEventListener("input", render);
+    sort.addEventListener("change", render);
+    window.addEventListener("hashchange", routeFromHash);
+    render();
+    routeFromHash();
+  </script>
+</body>
+</html>
